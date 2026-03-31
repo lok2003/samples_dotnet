@@ -1,0 +1,42 @@
+name: Pull-request for .NET
+on:
+  pull_request:
+    branches:
+      - dev
+jobs:
+  build_dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code  
+        uses: actions/checkout@v4
+
+      - name: setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Code Quality Analysis
+        run: dotnet format --verify-no-changes
+
+      - name: Security scan
+        run: dotnet list package  --vulnerable
+
+      - name: Run Application
+        run: dotnet run --configuration Release
+
+      - name: Publish Application
+        run: dotnet publish -c Release -o publish_output
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-app
+          path: "**/publish_output"
+
+
