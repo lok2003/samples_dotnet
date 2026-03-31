@@ -1,6 +1,6 @@
 name: Pull-request for .NET
 on:
-  pull_request:
+  push:
     branches:
       - dev
 jobs:
