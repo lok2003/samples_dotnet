@@ -1,32 +1,10 @@
-name: Pull-request for .NET + Java
+name: Pull-request for Java
 on:
   push:
     branches:
       - dev
 jobs:
-  build_dotnet:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code  
-        uses: actions/checkout@v4
-
-      - name: setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Build .NET Application
-        run: |
-          dotnet build --configuration Release
-          dotnet publish -c Release -o publish_output
-
-      - name: Upload .NET Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dotnet-app
-          path: publish_output
-
-  build_java:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -38,12 +16,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Package Java
-        run: mvn clean package
-        working-directory: samples_java  # <-- path to pom.xml
+      - name: Clean and Package
+        run: mvn clean package  # assumes pom.xml is in the root
 
-      - name: Upload Java Artifacts
+      - name: Code Quality Analysis (Optional)
+        run: mvn checkstyle:check  # optional, remove if not needed
+
+      - name: Security Scan (Optional)
+        run: mvn dependency-check:check  # optional, requires plugin
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: samples_java/target/*.jar
+          path: target/*.jar
