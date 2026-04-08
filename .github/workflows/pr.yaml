@@ -1,0 +1,32 @@
+name: Pull-request for Java
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Clean and Package
+        run: mvn clean package  # assumes pom.xml is in the root
+
+      - name: Code Quality Analysis (Optional)
+        run: mvn checkstyle:check  # optional, remove if not needed
+
+      - name: Security Scan (Optional)
+        run: mvn dependency-check:check  # optional, requires plugin
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-app
+          path: target/*.jar
